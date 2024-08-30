@@ -117,6 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       // aaaaaa
       // this is to test Android Studio
+      // this is for Visual Studio
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
