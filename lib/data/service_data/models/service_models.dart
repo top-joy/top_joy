@@ -22,10 +22,12 @@ class ServiceModels {
   final bool book;
   final String createdAt;
   final String? updatedAt;
+  final String phone_1;
 
   ServiceModels({
     required this.id,
     required this.categoryId,
+    required this.phone_1,
     required this.businessMerchantId,
     required this.name,
     required this.description,
@@ -51,6 +53,7 @@ class ServiceModels {
       categoryId: json['category_id'] ?? '',
       businessMerchantId: json['business_merchant_id'] ?? '',
       name: json['name'] ?? '',
+      phone_1: json['phone_1'] ?? '',
       description: json['description'] ?? '',
       duration: json['duration'] ?? 0,
       price: json['price'] ?? 0,
@@ -58,10 +61,18 @@ class ServiceModels {
       latitude: json['latitude']?.toDouble(),
       longitude: json['longitude']?.toDouble(),
       distance: json['distance']?.toDouble(),
-      url: json['url'] != null ? List<UrlModel>.from(json['url'].map((x) => UrlModel.fromJson(x))) : [],
+      url: json['url'] != null
+          ? List<UrlModel>.from(json['url'].map((x) => UrlModel.fromJson(x)))
+          : [],
       thumbnail: json['thumbnail'],
-      amenities: json['amenities'] != null ? List<AmenityModel>.from(json['amenities'].map((x) => AmenityModel.fromJson(x))) : [],
-      workingHours: json['working_hours'] != null ? List<WorkingHourModel>.from(json['working_hours'].map((x) => WorkingHourModel.fromJson(x))) : [],
+      amenities: json['amenities'] != null
+          ? List<AmenityModel>.from(
+              json['amenities'].map((x) => AmenityModel.fromJson(x)))
+          : [],
+      workingHours: json['working_hours'] != null
+          ? List<WorkingHourModel>.from(
+              json['working_hours'].map((x) => WorkingHourModel.fromJson(x)))
+          : [],
       view: json['view'] ?? 0,
       book: json['book'] ?? false,
       createdAt: json['created_at'] ?? '',
@@ -73,6 +84,7 @@ class ServiceModels {
     return {
       'id': id,
       'category_id': categoryId,
+      'phone_1': phone_1,
       'business_merchant_id': businessMerchantId,
       'name': name,
       'description': description,

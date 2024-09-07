@@ -1,6 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:top_joy/core/utils/app_color.dart';
+import 'package:top_joy/core/utils/app_text_style.dart';
+import 'package:top_joy/presentation/home/bloc/banner_bloc/banner_cubit.dart';
 import 'package:top_joy/presentation/home/bloc/service_data_bloc/service_data_bloc.dart';
 import 'package:top_joy/presentation/home/widgets/banner_carousel.dart';
 import 'package:top_joy/src/gen/assets.gen.dart';
@@ -27,23 +30,63 @@ class HomeScreen extends StatelessWidget {
               if (state is ServiceLoading) {
                 return SliverFillRemaining(
                   child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(100.0),
-                      child: Assets.lottie.loading2.lottie(),
-                    ),
+                    child: Assets.lottie.loading
+                        .lottie(width: 100, height: 100, fit: BoxFit.cover),
                   ),
                 );
               } else if (state is ServiceLoaded) {
+                if (state.serviceData.isEmpty) {
+                  return SliverFillRemaining(
+                    child: Center(child: Assets.lottie.not.lottie()),
+                  );
+                }
                 return SliverList.builder(
                   itemCount: state.serviceData.length,
                   itemBuilder: (BuildContext context, int index) {
                     final service = state.serviceData[index];
-                    return ServiceCard(service: service);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      child: ServiceCard(service: service),
+                    );
                   },
                 );
               } else if (state is ServiceError) {
                 return SliverFillRemaining(
-                  child: Center(child: Text(state.message)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                        style: AppTextStyle.montserratMedium,
+                      ),
+                      const SizedBox(height: 15),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: const Size(200, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          backgroundColor: AppColor.buttonColor,
+                        ),
+                        onPressed: () {
+                          context.read<BannerCubit>().getBanners();
+                          context.read<ServiceBloc>().add(
+                                FetchServiceDataEvent(),
+                              );
+                        },
+                        child: Center(
+                          child: Text(
+                            "Qayta urinish",
+                            style: AppTextStyle.montserratMedium.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 );
               } else {
                 return const SliverFillRemaining(

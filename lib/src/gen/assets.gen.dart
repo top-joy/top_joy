@@ -13,8 +13,31 @@ import 'package:flutter_svg/flutter_svg.dart' as _svg;
 import 'package:lottie/lottie.dart' as _lottie;
 import 'package:vector_graphics/vector_graphics.dart' as _vg;
 
+class $AssetsIconsGen {
+  const $AssetsIconsGen();
+
+  /// File path: assets/icons/bayroq.png
+  AssetGenImage get bayroq => const AssetGenImage('assets/icons/bayroq.png');
+
+  /// File path: assets/icons/location.png
+  AssetGenImage get location => const AssetGenImage('assets/icons/location.png');
+
+  /// File path: assets/icons/location_soccer.png
+  AssetGenImage get locationSoccer =>
+      const AssetGenImage('assets/icons/location_soccer.png');
+
+  /// File path: assets/icons/pin.png
+  AssetGenImage get pin => const AssetGenImage('assets/icons/pin.png');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [bayroq, location, locationSoccer, pin];
+}
+
 class $AssetsImagesGen {
   const $AssetsImagesGen();
+
+  /// File path: assets/images/boglanish.svg
+  SvgGenImage get boglanish => const SvgGenImage('assets/images/boglanish.svg');
 
   /// File path: assets/images/calendar.svg
   SvgGenImage get calendar => const SvgGenImage('assets/images/calendar.svg');
@@ -28,11 +51,17 @@ class $AssetsImagesGen {
   /// File path: assets/images/home_blue.svg
   SvgGenImage get homeBlue => const SvgGenImage('assets/images/home_blue.svg');
 
+  /// File path: assets/images/language.svg
+  SvgGenImage get language => const SvgGenImage('assets/images/language.svg');
+
   /// File path: assets/images/loaction.png
   AssetGenImage get loaction => const AssetGenImage('assets/images/loaction.png');
 
   /// File path: assets/images/location.svg
   SvgGenImage get location => const SvgGenImage('assets/images/location.svg');
+
+  /// File path: assets/images/logout.svg
+  SvgGenImage get logout => const SvgGenImage('assets/images/logout.svg');
 
   /// File path: assets/images/mavsum.png
   AssetGenImage get mavsum => const AssetGenImage('assets/images/mavsum.png');
@@ -49,6 +78,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/profile_blue.svg
   SvgGenImage get profileBlue => const SvgGenImage('assets/images/profile_blue.svg');
 
+  /// File path: assets/images/save.svg
+  SvgGenImage get save => const SvgGenImage('assets/images/save.svg');
+
   /// File path: assets/images/soccer.png
   AssetGenImage get soccer => const AssetGenImage('assets/images/soccer.png');
 
@@ -57,17 +89,21 @@ class $AssetsImagesGen {
 
   /// List of all assets
   List<dynamic> get values => [
+        boglanish,
         calendar,
         calendarBlue,
         home,
         homeBlue,
+        language,
         loaction,
         location,
+        logout,
         mavsum,
         navigator,
         notification,
         profile,
         profileBlue,
+        save,
         soccer,
         tavsiya
       ];
@@ -79,16 +115,26 @@ class $AssetsLottieGen {
   /// File path: assets/lottie/loading.json
   LottieGenImage get loading => const LottieGenImage('assets/lottie/loading.json');
 
-  /// File path: assets/lottie/loading_2.json
-  LottieGenImage get loading2 => const LottieGenImage('assets/lottie/loading_2.json');
+  /// File path: assets/lottie/network.json
+  LottieGenImage get network => const LottieGenImage('assets/lottie/network.json');
+
+  /// File path: assets/lottie/network2.json
+  LottieGenImage get network2 => const LottieGenImage('assets/lottie/network2.json');
+
+  /// File path: assets/lottie/not.json
+  LottieGenImage get not => const LottieGenImage('assets/lottie/not.json');
+
+  /// File path: assets/lottie/not_found.json
+  LottieGenImage get notFound => const LottieGenImage('assets/lottie/not_found.json');
 
   /// List of all assets
-  List<LottieGenImage> get values => [loading, loading2];
+  List<LottieGenImage> get values => [loading, network, network2, not, notFound];
 }
 
 class Assets {
   Assets._();
 
+  static const $AssetsIconsGen icons = $AssetsIconsGen();
   static const $AssetsImagesGen images = $AssetsImagesGen();
   static const $AssetsLottieGen lottie = $AssetsLottieGen();
 }

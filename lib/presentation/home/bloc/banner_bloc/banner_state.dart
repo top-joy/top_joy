@@ -1,6 +1,10 @@
+import 'package:equatable/equatable.dart';
 import 'package:top_joy/data/banner/models/banner_model.dart';
 
-abstract class BannerState {}
+abstract class BannerState extends Equatable {
+  @override
+  List<Object?> get props => [];
+}
 
 class BannerLoading extends BannerState {}
 
@@ -11,4 +15,10 @@ class BannerLoaded extends BannerState {
   BannerLoaded({required this.banners, this.currentIndex = 0});
 }
 
-class LoadBannersFailure extends BannerState {}
+class LoadBannersFailure extends BannerState {
+  final String error;
+  LoadBannersFailure(this.error);
+
+  @override
+  List<Object?> get props => [error];
+}

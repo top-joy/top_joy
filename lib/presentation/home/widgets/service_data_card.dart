@@ -1,7 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:top_joy/core/utils/app_color.dart';
 import 'package:top_joy/src/gen/assets.gen.dart';
+import '../../../core/navigation/app_router.gr.dart';
 import '../../../core/utils/app_text_style.dart';
 import '../../../data/service_data/models/service_models.dart';
 
@@ -15,16 +17,17 @@ class ServiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 8.0,
-        horizontal: 15.0,
-      ),
+    return GestureDetector(
+      onTap: () {
+        context.router.push(
+          DetailRoute(serviceModels: service),
+        );
+      },
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
-        elevation: 10.0,
+        elevation: 3.0,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

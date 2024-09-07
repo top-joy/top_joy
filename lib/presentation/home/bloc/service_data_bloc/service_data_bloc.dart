@@ -22,7 +22,7 @@ class ServiceBloc extends Bloc<ServiceEvent, ServiceState> {
     final result = await _getServiceDataUseCase.call();
 
     result.fold(
-      (failure) => emit(ServiceError(failure.message)),
+      (failure) => emit(ServiceError(failure.message,failure.code)),
       (serviceData) => emit(ServiceLoaded(serviceData)),
     );
   }

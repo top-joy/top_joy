@@ -1,67 +1,58 @@
 import 'dart:developer';
-
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:top_joy/core/error/error_handler.dart';
 import 'package:top_joy/core/error/failure.dart';
 import 'package:top_joy/data/service_data/models/service_models.dart';
-
-import '../../../core/constants/base_url.dart';
+import 'package:top_joy/data/services/location_service.dart';
+import 'package:top_joy/domain/dioClient/repositories/dio_client_repository.dart';
 
 abstract class ServiceData {
   Future<Either<Failure, List<ServiceModels>>> getData();
 }
 
 class ServiceDataImpl implements ServiceData {
-  final Dio dio;
+  final DioClientRepository dioClientRepository;
+  final LocationService locationService;
+  final Connectivity connectivity;
 
-  ServiceDataImpl(this.dio);
+  ServiceDataImpl({
+    required this.dioClientRepository,
+    required this.locationService,
+    required this.connectivity,
+  });
 
   @override
   Future<Either<Failure, List<ServiceModels>>> getData() async {
     try {
-      final position = await _determinePosition();
+      final connectivityResult = await connectivity.checkConnectivity();
+      if (connectivityResult[0] == ConnectivityResult.none) {
+        return const Left(NetworkFailure('No internet connection.'));
+      }
+
+      final position = await locationService.updateAndGetCurrentPosition();
       final url =
-          '$baseUrl/api/v1/services?longitude=${position.longitude}&latitude=${position.latitude}';
-      final response = await dio.get(url);
+          '/api/v1/services?longitude=${position.longitude}&latitude=${position.latitude}';
+
+      final response = await dioClientRepository.getData(url);
 
       if (response.statusCode == 200) {
-        // Parse the response data into a list of ServiceModels
-        final services = List<ServiceModels>.from(
-          response.data['services'].map((x) => ServiceModels.fromJson(x)),
-        );
-        return Right(services); // Return the list of ServiceModels
+        final services = (response.data['services'] as List)
+            .map((x) => ServiceModels.fromJson(x))
+            .toList();
+        return Right(services);
       } else {
-        return Left(Failure('Failed to load data: ${response.statusCode}'));
+        return Left(
+            ServerFailure('Failed to load data: ${response.statusCode}'));
       }
+    } on DioException catch (e) {
+      print(e);
+      final failure = ErrorHandler.handleDioError(e);
+      return Left(failure);
     } catch (e) {
       log('Error fetching services: $e');
-      return Left(Failure('Error fetching services: $e'));
+      return Left(ErrorHandler.handleGenericError(e.toString()));
     }
-  }
-
-  Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    return await Geolocator.getCurrentPosition();
   }
 }

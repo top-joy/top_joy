@@ -5,12 +5,14 @@ import 'package:top_joy/presentation/home/bloc/banner_bloc/banner_state.dart';
 
 class BannerCubit extends Cubit<BannerState> {
   BannerCubit() : super(BannerLoading());
+
   void getBanners() async {
     var returnData = await getIt<GetBannersUsecase>().call();
 
     returnData.fold(
       (error) {
-        emit(LoadBannersFailure());
+        String errorMessage = error.message ?? 'An unknown error occurred';
+        emit(LoadBannersFailure(errorMessage));
       },
       (data) {
         emit(BannerLoaded(banners: data));
