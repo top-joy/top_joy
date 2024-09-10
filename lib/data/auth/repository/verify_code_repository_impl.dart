@@ -1,5 +1,6 @@
 import 'package:top_joy/data/auth/models/verify_code_model.dart';
 import 'package:top_joy/data/auth/source/verify_code_source.dart';
+import 'package:top_joy/domain/auth/entity/check_user.dart';
 import 'package:top_joy/domain/auth/entity/verify_code.dart';
 import 'package:top_joy/domain/auth/repository/verify_code_repository.dart';
 
@@ -11,5 +12,10 @@ class VerifyCodeRepositoryImpl extends VerifyCodeRepository {
     final verifyCodeModel =
         VerifyCodeModel(verifyCode.phoneNumber, verifyCode.code);
     return await verifyCodeSource.verifyCode(verifyCodeModel);
+  }
+
+  @override
+  Future<void> checkUser(CheckUser checkUser) async {
+    return await verifyCodeSource.checkUser(checkUser);
   }
 }

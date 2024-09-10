@@ -1,6 +1,8 @@
 part of 'verify_bloc.dart';
 
 abstract class VerifyEvent extends Equatable {
+  const VerifyEvent();
+
   @override
   List<Object?> get props => [];
 }
@@ -8,8 +10,18 @@ abstract class VerifyEvent extends Equatable {
 class VerifyCodeEvent extends VerifyEvent {
   final String phoneNumber;
   final String code;
-  VerifyCodeEvent(this.phoneNumber, this.code);
+
+  const VerifyCodeEvent({required this.phoneNumber, required this.code});
 
   @override
   List<Object?> get props => [phoneNumber, code];
+}
+
+class CheckUserEvent extends VerifyEvent {
+  final String phoneNumber;
+
+  const CheckUserEvent({required this.phoneNumber});
+
+  @override
+  List<Object?> get props => [phoneNumber];
 }

@@ -22,6 +22,7 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController phoneController = TextEditingController();
   bool consent = false;
+  String signatureText = '';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   void _showToast() {
     ToastService().showToast(
@@ -134,8 +135,8 @@ class _RegisterPageState extends State<RegisterPage> {
               BlocConsumer<AuthBloc, AuthState>(
                 listener: (context, state) {
                   if (state is AuthSuccess) {
-                    context.router
-                        .push(SmsRoute(phoneNumber: formatPhoneNumber(phoneController.text)));
+                    context.router.push(SmsRoute(
+                        phoneNumber: formatPhoneNumber(phoneController.text)));
                   } else if (state is AuthFailure) {
                     _showToast();
                   }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pinput/pinput.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sms_autofill/sms_autofill.dart';
+import 'package:telephony/telephony.dart';
 import 'package:top_joy/core/navigation/app_router.gr.dart';
 import 'package:top_joy/core/utils/app_color.dart';
 import 'package:top_joy/core/utils/app_text_style.dart';
@@ -13,7 +13,6 @@ import 'package:top_joy/presentation/auth/bloc/auth_bloc/auth_bloc.dart';
 import 'package:top_joy/presentation/auth/bloc/auth_bloc/auth_event.dart';
 import 'package:top_joy/presentation/auth/bloc/verify_code_bloc/verify_bloc.dart';
 import 'package:top_joy/presentation/auth/widgets/toasts_widget.dart';
-
 import '../../main/bloc/navigation_cubit.dart';
 
 @RoutePage()
@@ -25,60 +24,87 @@ class SmsScreen extends StatefulWidget {
   State<SmsScreen> createState() => _SmsScreenState();
 }
 
-class _SmsScreenState extends State<SmsScreen> with CodeAutoFill {
+class _SmsScreenState extends State<SmsScreen> {
   final TextEditingController _pinController = TextEditingController();
+  final Telephony telephony = Telephony.instance;
+  final FocusNode smsFocusNode = FocusNode();
   Timer? _timer;
-  int _remainingSeconds = 120;
+  int _remainingSeconds = 60;
   bool _isButtonVisible = false;
 
   @override
   void initState() {
     super.initState();
-    listenForCode();
+    smsFocusNode.requestFocus();
+    listenToIncomingSMS();
     _startTimer();
-  }
-
-  @override
-  void codeUpdated() {
-    if (code != null) {
-      setState(() {
-        _pinController.text = code!;
-      });
-    }
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setState(() {
-        if (_remainingSeconds > 0) {
-          _remainingSeconds--;
-        } else {
-          _isButtonVisible = true;
-          _timer?.cancel();
-        }
-      });
-    });
-  }
-
-  void _verifyCode() {
-    if (_pinController.text.isEmpty) {
-      _showToast("SMS kirtilmadi!");
-    } else {
-      context.read<VerifyBloc>().add(
-            VerifyCodeEvent(
-              widget.phoneNumber,
-              _pinController.text,
-            ),
-          );
-    }
   }
 
   @override
   void dispose() {
     _pinController.dispose();
-    cancel();
     _timer?.cancel();
     super.dispose();
+  }
+
+  void listenToIncomingSMS() {
+    telephony.listenIncomingSms(
+      onNewMessage: (message) {
+        final body = message.body ?? '';
+        if (body.contains("phone-auth-15bdb")) {
+          final otpCode = body.substring(0, 6);
+          _pinController.text = otpCode;
+          Future.delayed(const Duration(seconds: 1), _verifyCode);
+        }
+      },
+      listenInBackground: false,
+    );
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds > 0) {
+        setState(() => _remainingSeconds--);
+      } else {
+        setState(() => _isButtonVisible = true);
+        timer.cancel();
+      }
+    });
+  }
+
+  void _verifyCode() {
+    final code = _pinController.text;
+    if (code.isEmpty) {
+      _showToast("SMS kirtilmadi!");
+    } else {
+      context.read<VerifyBloc>().add(
+            CheckUserEvent(phoneNumber: widget.phoneNumber.substring(1)),
+          );
+      context.read<VerifyBloc>().add(
+            VerifyCodeEvent(phoneNumber: widget.phoneNumber, code: code),
+          );
+    }
+  }
+
+  Future<void> _register() async {
+    final prefs = getIt<SharedPreferences>();
+    await prefs.setBool('isRegistor', true);
+  }
+
+  void _resendCode() {
+    setState(() {
+      _remainingSeconds = 120;
+      _isButtonVisible = false;
+    });
+    context.read<AuthBloc>().add(SendOTPEvent(widget.phoneNumber));
+    _startTimer();
+    _showToast("SMS qayta jo'natildi", backgroundColor: Colors.green);
+  }
+
+  String _formatTime(int seconds) {
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final remainingSeconds = (seconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$remainingSeconds';
   }
 
   void _showToast(String message,
@@ -90,28 +116,6 @@ class _SmsScreenState extends State<SmsScreen> with CodeAutoFill {
     );
   }
 
-  Future<void> _register() async {
-    final prefs = getIt<SharedPreferences>();
-    prefs.setBool('isRegistor', true);
-  }
-
-  void _resendCode() {
-    setState(() {
-      _remainingSeconds = 120;
-      _isButtonVisible = false;
-      context.read<AuthBloc>().add(SendOTPEvent(widget.phoneNumber));
-      _startTimer();
-    });
-
-    _showToast("SMS qayta jo'natildi", backgroundColor: Colors.green);
-  }
-
-  String _formatTime(int seconds) {
-    final minutes = (seconds / 60).floor();
-    final remainingSeconds = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,32 +125,25 @@ class _SmsScreenState extends State<SmsScreen> with CodeAutoFill {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Tasdiq kodi",
-              style: AppTextStyle.montserratBold.copyWith(fontSize: 25),
-            ),
+            Text("Tasdiq kodi",
+                style: AppTextStyle.montserratBold.copyWith(fontSize: 25)),
             const SizedBox(height: 30),
             Text(
               "SMS-dan 4 xonali kodni kiriting",
               style: AppTextStyle.montserratRegular
                   .copyWith(color: AppColor.regularTextColor, fontSize: 17),
             ),
-            Text(
-              widget.phoneNumber,
-              style: AppTextStyle.montserratMedium.copyWith(fontSize: 17),
-            ),
+            Text(widget.phoneNumber,
+                style: AppTextStyle.montserratMedium.copyWith(fontSize: 17)),
             const SizedBox(height: 30),
-            Text(
-              "SMS kod",
-              style: AppTextStyle.montserratMedium
-                  .copyWith(color: AppColor.regularTextColor, fontSize: 17),
-            ),
+            Text("SMS kod",
+                style: AppTextStyle.montserratMedium
+                    .copyWith(color: AppColor.regularTextColor, fontSize: 17)),
             const SizedBox(height: 10),
             Pinput(
-              onCompleted: (value) {
-                _verifyCode();
-              },
+              onCompleted: (_) => _verifyCode(),
               length: 4,
+              focusNode: smsFocusNode,
               controller: _pinController,
               defaultPinTheme: PinTheme(
                 width: 45,
@@ -172,9 +169,10 @@ class _SmsScreenState extends State<SmsScreen> with CodeAutoFill {
             ),
             const SizedBox(height: 20),
             const Spacer(),
-            BlocConsumer<VerifyBloc, VerifyState>(
+            BlocConsumer<VerifyBloc, CombinedState>(
               builder: (context, state) {
-                if (state is VerifyLoading) {
+                if (state.userState is VerifyLoading &&
+                    state.verifyState is VerifyLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 return Column(
@@ -182,11 +180,9 @@ class _SmsScreenState extends State<SmsScreen> with CodeAutoFill {
                     if (_isButtonVisible)
                       TextButton(
                         onPressed: _resendCode,
-                        child: Text(
-                          "SMS qayta jo'natish",
-                          style: AppTextStyle.montserratMedium.copyWith(
-                              color: AppColor.buttonColor, fontSize: 17),
-                        ),
+                        child: Text("SMS qayta jo'natish",
+                            style: AppTextStyle.montserratMedium.copyWith(
+                                color: AppColor.buttonColor, fontSize: 17)),
                       ),
                     if (!_isButtonVisible)
                       Text(
@@ -204,30 +200,28 @@ class _SmsScreenState extends State<SmsScreen> with CodeAutoFill {
                         ),
                         fixedSize: Size(MediaQuery.of(context).size.width, 50),
                       ),
-                      child: Text(
-                        'Tasdiqlash',
-                        style: AppTextStyle.montserratMedium
-                            .copyWith(color: Colors.white),
-                      ),
+                      child: Text('Tasdiqlash',
+                          style: AppTextStyle.montserratMedium
+                              .copyWith(color: Colors.white)),
                     ),
                   ],
                 );
               },
               listener: (context, state) async {
-                if (state is VerifySuccess) {
+                if (state.verifyState is VerifySuccess &&
+                    state.userState is CheckUserSuccess) {
                   _register();
-                  context.router.pushAndPopUntil(
-                    MainRoute(),
-                    predicate: (route) => false,
-                  );
+                  context.router.pushAndPopUntil(const MainRoute(),
+                      predicate: (route) => false);
                   context.read<NavigationCubit>().pages[2];
                 }
-                if (state is VerifyFailure) {
-                  if (state.error.contains('400')) {
-                    _showToast(
-                      "Iltimos, yaroqli kodni kiriting!",
-                    );
-                  }
+                if (state.userState is CheckUserFailure &&
+                    state.verifyState is VerifySuccess) {
+                  context.router
+                      .push(InputUserInfo(phoneNumber: widget.phoneNumber));
+                }
+                if (state.verifyState is VerifyFailure) {
+                  _showToast("Iltimos, yaroqli kodni kiriting!");
                 }
               },
             ),

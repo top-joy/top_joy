@@ -11,17 +11,21 @@ class BannerCubit extends Cubit<BannerState> {
 
     returnData.fold(
       (error) {
-        String errorMessage = error.message ?? 'An unknown error occurred';
-        emit(LoadBannersFailure(errorMessage));
+        if (!isClosed) {
+          String errorMessage = error.message ?? 'An unknown error occurred';
+          emit(LoadBannersFailure(errorMessage));
+        }
       },
       (data) {
-        emit(BannerLoaded(banners: data));
+        if (!isClosed) {
+          emit(BannerLoaded(banners: data));
+        }
       },
     );
   }
 
   void updateIndex(int index) {
-    if (state is BannerLoaded) {
+    if (state is BannerLoaded && !isClosed) {
       final currentState = state as BannerLoaded;
       emit(BannerLoaded(banners: currentState.banners, currentIndex: index));
     }

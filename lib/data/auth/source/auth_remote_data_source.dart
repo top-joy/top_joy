@@ -25,9 +25,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         '/api/v1/send-otp',
         request.toJson(),
       );
-
-      if (response.statusCode == 200) {
-      } else {
+      
+      if (response.statusCode != 200) {
         throw Exception('Failed to send OTP: ${response.statusMessage}');
       }
     } on DioException catch (e) {

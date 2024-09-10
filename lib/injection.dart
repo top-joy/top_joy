@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_joy/data/auth/repository/auth_repository_impl.dart';
 import 'package:top_joy/data/auth/repository/verify_code_repository_impl.dart';
@@ -16,6 +17,9 @@ import 'package:top_joy/data/recomendation/source/recomendation_data.dart';
 import 'package:top_joy/data/service_data/repository/service_data_impl.dart';
 import 'package:top_joy/data/service_data/source/service_data.dart';
 import 'package:top_joy/data/services/location_service.dart';
+import 'package:top_joy/data/user/models/user_model.dart';
+import 'package:top_joy/data/user/repository/user_repository_impl.dart';
+import 'package:top_joy/data/user/source/user_post_source.dart';
 import 'package:top_joy/domain/auth/repository/auth_repository.dart';
 import 'package:top_joy/domain/auth/repository/verify_code_repository.dart';
 import 'package:top_joy/domain/auth/usecsae/send_auth_usecase.dart';
@@ -27,6 +31,8 @@ import 'package:top_joy/domain/recomendation/repository/recomendation_repository
 import 'package:top_joy/domain/recomendation/usecase/get_recomendation_usecase.dart';
 import 'package:top_joy/domain/service_data/reporitory/service_data_repository.dart';
 import 'package:top_joy/domain/service_data/usecase/get_service_data.dart';
+import 'package:top_joy/domain/user/repository/user_repository.dart';
+import 'package:top_joy/domain/user/usecase/post_user_usecase.dart';
 import 'package:top_joy/presentation/auth/bloc/verify_code_bloc/verify_bloc.dart';
 import 'presentation/auth/bloc/auth_bloc/auth_bloc.dart';
 
@@ -35,6 +41,9 @@ final GetIt getIt = GetIt.instance;
 Future<void> setUp() async {
   final dio = Dio();
   getIt.registerSingleton<Dio>(dio);
+
+  var oldUser = await Hive.openBox<UserModel>('oldUserBox');
+  getIt.registerSingleton<Box<UserModel>>(oldUser);
 
   // SharedPreferences ro'yxatga olish (birinchi bo'lib ro'yxatga olamiz)
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -58,8 +67,8 @@ Future<void> setUp() async {
       () => VerifyCodeUsecase(getIt()));
   getIt.registerLazySingleton<VerifyCodeRepository>(
       () => VerifyCodeRepositoryImpl(getIt()));
-  getIt.registerLazySingleton<VerifyCodeSource>(
-      () => VerifyCodeSourceImpl(getIt()));
+  getIt.registerLazySingleton<VerifyCodeSource>(() => VerifyCodeSourceImpl(
+      getIt<DioClientRepository>(), getIt<Box<UserModel>>()));
   getIt.registerLazySingleton<VerifyBloc>(() => VerifyBloc(getIt()));
 
   // Auth ro'yxatga olish
@@ -106,4 +115,13 @@ Future<void> setUp() async {
       RecomendationRepositoryImpl(getIt<RecomendationData>()));
   getIt.registerSingleton<GetRecomendationUsecase>(
       GetRecomendationUsecase(getIt<RecomendationRepository>()));
+
+  // UserPost
+  getIt.registerSingleton<UserPostSource>(UserPostSourceImpl(
+    dioClientRepository: getIt<DioClientRepository>(),
+  ));
+  getIt.registerSingleton<UserRepository>(
+      UserRepositoryImpl(getIt<UserPostSource>()));
+  getIt.registerSingleton<PostUserUsecase>(
+      PostUserUsecase(getIt<UserRepository>()));
 }

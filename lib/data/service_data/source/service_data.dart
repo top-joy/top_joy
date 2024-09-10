@@ -47,7 +47,6 @@ class ServiceDataImpl implements ServiceData {
             ServerFailure('Failed to load data: ${response.statusCode}'));
       }
     } on DioException catch (e) {
-      print(e);
       final failure = ErrorHandler.handleDioError(e);
       return Left(failure);
     } catch (e) {

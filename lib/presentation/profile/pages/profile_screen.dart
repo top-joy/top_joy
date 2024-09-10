@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:top_joy/core/utils/app_color.dart';
 import 'package:top_joy/core/utils/app_text_style.dart';
+import 'package:top_joy/data/user/models/user_model.dart';
 import 'package:top_joy/injection.dart';
 import 'package:top_joy/presentation/profile/widgets/profile_content.dart';
 
@@ -30,11 +33,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _logOut() async {
-    final sharedPreferences = getIt<SharedPreferences>();
-    await sharedPreferences.setBool('isRegistor', false);
-    setState(() {
-      isRegistered = false;
-    });
+    bool shouldLogOut = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Center(
+          child: Text(
+            'Chiqish',
+            style: AppTextStyle.montserratBold,
+          ),
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        content: const Text('Chiqmoqchimisiz?', textAlign: TextAlign.center),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: AppColor.textFeildBackColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop(false); // Yo'q tugmasi bosildi
+            },
+            child: Text(
+              "Yo'q",
+              style:
+                  AppTextStyle.montserratMedium.copyWith(color: Colors.black),
+            ),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              elevation: 0,
+              backgroundColor: AppColor.buttonColor,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop(true); // Ha tugmasi bosildi
+            },
+            child: Text(
+              'Ha',
+              style:
+                  AppTextStyle.montserratMedium.copyWith(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // Agar foydalanuvchi chiqishni tasdiqlasa
+    if (shouldLogOut == true) {
+      getIt<Box<UserModel>>().clear();
+      final sharedPreferences = getIt<SharedPreferences>();
+      await sharedPreferences.setBool(
+          'isRegistor', false); // isRegistor holatini o'zgartirish
+      setState(() {
+        isRegistered = false; // UI ni yangilash
+      });
+    }
   }
 
   @override

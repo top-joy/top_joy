@@ -14,5 +14,6 @@ class AppRouter extends RootStackRouter {
         AutoRoute(page: RegisterRoute.page, path: '/register'),
         AutoRoute(page: SmsRoute.page, path: '/sms_input'),
         AutoRoute(page: ProfileRoute.page,path: '/profile'),
+        AutoRoute(page: InputUserInfo.page,path: '/inputUser'),
       ];
 }
