@@ -13,6 +13,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       forceMaterialTransparency: true,
+      titleSpacing: 10,
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

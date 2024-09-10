@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:top_joy/core/usecase/usecase.dart';
 import 'package:top_joy/core/error/failure.dart';
 import 'package:top_joy/data/service_data/models/service_models.dart';
-
 import '../reporitory/service_data_repository.dart';
 
 class GetServiceDataUsercase

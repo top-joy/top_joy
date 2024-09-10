@@ -1,6 +1,8 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_joy/core/navigation/app_router.gr.dart';
+import 'package:top_joy/injection.dart';
 import 'package:top_joy/src/gen/assets.gen.dart';
 
 @RoutePage()
@@ -22,6 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    _isRegistor();
 
     _ballController = AnimationController(
       vsync: this,
@@ -56,6 +59,16 @@ class _SplashScreenState extends State<SplashScreen>
         context.router.replace(const MainRoute());
       },
     );
+  }
+
+  Future<void> _isRegistor() async {
+    bool registor = false;
+    SharedPreferences sharedPreferences = getIt<SharedPreferences>();
+    registor = sharedPreferences.getBool('isRegistor') ?? false;
+    if (registor) {
+    } else {
+      sharedPreferences.setBool('isRegistor', false);
+    }
   }
 
   @override
