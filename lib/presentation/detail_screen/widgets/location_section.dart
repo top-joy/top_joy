@@ -4,6 +4,7 @@ import 'package:top_joy/core/utils/app_text_style.dart';
 import 'package:top_joy/data/service_data/models/service_models.dart';
 import 'package:top_joy/presentation/detail_screen/widgets/distance_calkulator.dart';
 import 'package:top_joy/src/gen/assets.gen.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 class LocationSection extends StatefulWidget {
@@ -27,6 +28,17 @@ class _LocationSectionState extends State<LocationSection> {
     super.initState();
     _distance = widget.serviceModels.distance ?? 0;
     _calculateDistance();
+  }
+
+  Future<void> _openMap(double latitude, double longitude) async {
+    final Uri url =
+        Uri.parse('geo:$latitude,$longitude?q=$latitude,$longitude');
+
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Navigatsiya ilovasi ochilmadi';
+    }
   }
 
   Future<void> _calculateDistance() async {
@@ -128,7 +140,7 @@ class _LocationSectionState extends State<LocationSection> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -151,6 +163,39 @@ class _LocationSectionState extends State<LocationSection> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 10),
+                      Divider(
+                        color: Colors.grey[300],
+                        height: 0,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          _openMap(widget.serviceModels.latitude!,
+                              widget.serviceModels.longitude!);
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            top: 12,
+                            bottom: 10,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Marshrutni qurish",
+                                style: AppTextStyle.montserratBold.copyWith(
+                                  color: AppColor.buttonColor,
+                                ),
+                              ),
+                              const Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: AppColor.buttonColor,
+                                size: 20,
+                              )
+                            ],
+                          ),
+                        ),
+                      )
                     ],
                   ),
                 ),

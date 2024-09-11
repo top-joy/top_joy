@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:top_joy/core/utils/app_color.dart';
 import 'package:top_joy/core/utils/app_text_style.dart';
 import 'package:top_joy/data/service_data/models/service_models.dart';
@@ -42,6 +43,15 @@ class _DetailBodyState extends State<DetailBody> {
     });
   }
 
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri url = Uri(scheme: 'tel', path: phoneNumber);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Qo\'ng\'iroq qilish mumkin emas: $phoneNumber';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -83,7 +93,9 @@ class _DetailBodyState extends State<DetailBody> {
           LocationSection(serviceModels: widget.serviceModels),
           const SizedBox(height: 30),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              _makePhoneCall(widget.serviceModels.phone_1);
+            },
             style: ElevatedButton.styleFrom(
               elevation: 0,
               backgroundColor: AppColor.textFeildBackColor,

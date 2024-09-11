@@ -12,6 +12,8 @@ import 'package:top_joy/data/banner/repository/banner_repository_impl.dart';
 import 'package:top_joy/data/banner/source/banner_service.dart';
 import 'package:top_joy/data/dioClient/repositories/dio_client_repository_impl.dart';
 import 'package:top_joy/data/dioClient/source/dio_client.dart';
+import 'package:top_joy/data/favorite/repository/favorite_repository_impl.dart';
+import 'package:top_joy/data/favorite/source/favorite_source.dart';
 import 'package:top_joy/data/recomendation/repository/recomendation_data_impl.dart';
 import 'package:top_joy/data/recomendation/source/recomendation_data.dart';
 import 'package:top_joy/data/service_data/repository/service_data_impl.dart';
@@ -27,6 +29,7 @@ import 'package:top_joy/domain/auth/usecsae/verify_code_usecase.dart';
 import 'package:top_joy/domain/banner/repository/banner_repository.dart';
 import 'package:top_joy/domain/banner/usecase/get_banners.dart';
 import 'package:top_joy/domain/dioClient/repositories/dio_client_repository.dart';
+import 'package:top_joy/domain/favorite/repository/favorite_repository.dart';
 import 'package:top_joy/domain/recomendation/repository/recomendation_repository.dart';
 import 'package:top_joy/domain/recomendation/usecase/get_recomendation_usecase.dart';
 import 'package:top_joy/domain/service_data/reporitory/service_data_repository.dart';
@@ -60,6 +63,13 @@ Future<void> setUp() async {
   getIt.registerSingleton<DioClient>(DioClient(dio));
   getIt.registerSingleton<DioClientRepository>(
     DioClientRepositoryImpl(getIt<DioClient>()),
+  );
+
+  getIt.registerSingleton<FavoriteSource>(
+    FavoriteSourceImpl(getIt<DioClientRepository>()),
+  );
+  getIt.registerSingleton<FavoriteRepository>(
+    FavoriteRepositoryImpl(getIt<FavoriteSource>()),
   );
 
   // VerifyCode ro'yxatga olish

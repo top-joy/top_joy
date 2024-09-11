@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:top_joy/core/utils/app_color.dart';
@@ -29,7 +30,6 @@ class _ProfileContentState extends State<ProfileContent> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: BlocBuilder<UserProfileBloc, UserProfileState>(
-        bloc: context.read<UserProfileBloc>()..add(FetchUser()),
         builder: (context, state) {
           if (state is UserProfileLoading) {
             return const Center(child: CircularProgressIndicator());
@@ -54,7 +54,9 @@ class _ProfileContentState extends State<ProfileContent> {
                 ),
                 const SizedBox(height: 30),
                 ListTileProfile(
-                  onTap: () {},
+                  onTap: () {
+                    context.router.pushNamed('/favorite');
+                  },
                   title: "Yoqtirganlar",
                   leading: CircleAvatar(
                     backgroundColor: Colors.grey.withOpacity(.1),
@@ -75,18 +77,6 @@ class _ProfileContentState extends State<ProfileContent> {
                     ),
                   ),
                   onTap: () {},
-                ),
-                const Divider(color: AppColor.textFeildBackColor, height: 30),
-                ListTileProfile(
-                  onTap: () {},
-                  title: "Til",
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.grey.withOpacity(.1),
-                    child: Center(
-                      child: Assets.images.language
-                          .svg(width: 20, height: 20, fit: BoxFit.cover),
-                    ),
-                  ),
                 ),
                 const Divider(color: AppColor.textFeildBackColor, height: 30),
                 ListTileProfile(
