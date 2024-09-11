@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:top_joy/core/navigation/app_router.gr.dart';
 import 'package:top_joy/core/utils/app_color.dart';
 import 'package:top_joy/presentation/profile/widgets/list_tile_profile.dart';
 import 'package:top_joy/src/gen/assets.gen.dart';
@@ -39,7 +40,9 @@ class _ProfileContentState extends State<ProfileContent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ListTileProfile(
-                  onTap: () {},
+                  onTap: () {
+                    context.router.push(UserInfoRoute(userModel: userModel));
+                  },
                   title: userModel.firstName,
                   leading: CircleAvatar(
                     radius: 30,
