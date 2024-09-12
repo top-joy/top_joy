@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:top_joy/data/favorite/source/favorite_source.dart';
+import 'package:top_joy/domain/free_time/usecase/fetch_free_times_usecase.dart';
 import 'package:top_joy/domain/recomendation/usecase/get_recomendation_usecase.dart';
 import 'package:top_joy/domain/service_data/usecase/get_service_data.dart';
 import 'package:top_joy/domain/user/usecase/post_user_usecase.dart';
@@ -12,6 +13,7 @@ import 'package:top_joy/presentation/auth/bloc/auth_bloc/auth_bloc.dart';
 import 'package:top_joy/presentation/auth/bloc/user_info_input/user_input_bloc.dart';
 import 'package:top_joy/presentation/auth/bloc/verify_code_bloc/verify_bloc.dart';
 import 'package:top_joy/presentation/favorite/bloc/favorite_bloc.dart';
+import 'package:top_joy/presentation/free_time/bloc/free_times_cubit.dart';
 import 'package:top_joy/presentation/home/bloc/banner_bloc/banner_cubit.dart';
 import 'package:top_joy/presentation/home/bloc/service_data_bloc/service_data_bloc.dart';
 import 'package:top_joy/presentation/main/bloc/navigation_cubit.dart';
@@ -63,7 +65,10 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => FavoriteBloc(getIt<FavoriteSource>()),
-        )
+        ),
+        BlocProvider(
+            create: (context) =>
+                FreeTimesCubit(getIt<FetchFreeTimesUseCase>())),
       ],
       child: BlocBuilder<InternetBloc, InternetState>(
         builder: (context, internetState) {

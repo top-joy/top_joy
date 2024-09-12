@@ -14,6 +14,8 @@ import 'package:top_joy/data/dioClient/repositories/dio_client_repository_impl.d
 import 'package:top_joy/data/dioClient/source/dio_client.dart';
 import 'package:top_joy/data/favorite/repository/favorite_repository_impl.dart';
 import 'package:top_joy/data/favorite/source/favorite_source.dart';
+import 'package:top_joy/data/free_time/repository/free_time_repository_impl.dart';
+import 'package:top_joy/data/free_time/source/free_time_remote_source.dart';
 import 'package:top_joy/data/recomendation/repository/recomendation_data_impl.dart';
 import 'package:top_joy/data/recomendation/source/recomendation_data.dart';
 import 'package:top_joy/data/service_data/repository/service_data_impl.dart';
@@ -30,6 +32,8 @@ import 'package:top_joy/domain/banner/repository/banner_repository.dart';
 import 'package:top_joy/domain/banner/usecase/get_banners.dart';
 import 'package:top_joy/domain/dioClient/repositories/dio_client_repository.dart';
 import 'package:top_joy/domain/favorite/repository/favorite_repository.dart';
+import 'package:top_joy/domain/free_time/repository/free_time_repository.dart';
+import 'package:top_joy/domain/free_time/usecase/fetch_free_times_usecase.dart';
 import 'package:top_joy/domain/recomendation/repository/recomendation_repository.dart';
 import 'package:top_joy/domain/recomendation/usecase/get_recomendation_usecase.dart';
 import 'package:top_joy/domain/service_data/reporitory/service_data_repository.dart';
@@ -134,8 +138,17 @@ Future<void> setUp() async {
   getIt.registerSingleton<UserRepository>(
       UserRepositoryImpl(getIt<UserPostSource>()));
   getIt.registerSingleton<PutUserUsecase>(
-    PutUserUsecase(getIt<UserRepository>())
-  );
+      PutUserUsecase(getIt<UserRepository>()));
   getIt.registerSingleton<PostUserUsecase>(
       PostUserUsecase(getIt<UserRepository>()));
+
+  getIt.registerSingleton<FreeTimeRemoteDataSource>(
+    FreeTimeRemoteDataSource(getIt<DioClientRepository>()),
+  );
+  getIt.registerSingleton<FreeTimeRepository>(
+    FreeTimeRepositoryImpl(getIt<FreeTimeRemoteDataSource>()),
+  );
+  getIt.registerSingleton<FetchFreeTimesUseCase>(
+    FetchFreeTimesUseCase(getIt<FreeTimeRepository>()),
+  );
 }

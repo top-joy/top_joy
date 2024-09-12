@@ -1,4 +1,6 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:top_joy/core/navigation/app_router.gr.dart';
 import 'package:top_joy/core/utils/app_color.dart';
 import 'package:top_joy/core/utils/app_text_style.dart';
 import 'package:top_joy/data/service_data/models/service_models.dart';
@@ -36,7 +38,9 @@ class DetailBottomBar extends StatelessWidget {
             ],
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              context.router.push(FreeTimesRoute(serviceId: serviceModels.id));
+            },
             style: ElevatedButton.styleFrom(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
