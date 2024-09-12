@@ -45,11 +45,17 @@ class $AssetsImagesGen {
   /// File path: assets/images/calendar_blue.svg
   SvgGenImage get calendarBlue => const SvgGenImage('assets/images/calendar_blue.svg');
 
+  /// File path: assets/images/favorite_empty.svg
+  SvgGenImage get favoriteEmpty => const SvgGenImage('assets/images/favorite_empty.svg');
+
   /// File path: assets/images/home.svg
   SvgGenImage get home => const SvgGenImage('assets/images/home.svg');
 
   /// File path: assets/images/home_blue.svg
   SvgGenImage get homeBlue => const SvgGenImage('assets/images/home_blue.svg');
+
+  /// File path: assets/images/kalendar.png
+  AssetGenImage get kalendar => const AssetGenImage('assets/images/kalendar.png');
 
   /// File path: assets/images/language.svg
   SvgGenImage get language => const SvgGenImage('assets/images/language.svg');
@@ -72,6 +78,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/notification.svg
   SvgGenImage get notification => const SvgGenImage('assets/images/notification.svg');
 
+  /// File path: assets/images/person.png
+  AssetGenImage get person => const AssetGenImage('assets/images/person.png');
+
   /// File path: assets/images/profile.svg
   SvgGenImage get profile => const SvgGenImage('assets/images/profile.svg');
 
@@ -92,8 +101,10 @@ class $AssetsImagesGen {
         boglanish,
         calendar,
         calendarBlue,
+        favoriteEmpty,
         home,
         homeBlue,
+        kalendar,
         language,
         loaction,
         location,
@@ -101,6 +112,7 @@ class $AssetsImagesGen {
         mavsum,
         navigator,
         notification,
+        person,
         profile,
         profileBlue,
         save,

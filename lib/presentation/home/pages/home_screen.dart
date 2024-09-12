@@ -20,82 +20,88 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const HomeAppBar(),
-      body: CustomScrollView(
-        slivers: [
-          const HomeCategoryRow(),
-          const BannerCarousel(),
-          BlocBuilder<ServiceBloc, ServiceState>(
-            bloc: context.read<ServiceBloc>()..add(FetchServiceDataEvent()),
-            builder: (context, state) {
-              if (state is ServiceLoading) {
-                return SliverFillRemaining(
-                  child: Center(
-                    child: Assets.lottie.loading
-                        .lottie(width: 100, height: 100, fit: BoxFit.cover),
-                  ),
-                );
-              } else if (state is ServiceLoaded) {
-                if (state.serviceData.isEmpty) {
+      body: RefreshIndicator(
+        color: AppColor.buttonColor,
+        onRefresh: () async {
+          context.read<ServiceBloc>().add(FetchServiceDataEvent());
+        },
+        child: CustomScrollView(
+          slivers: [
+            const HomeCategoryRow(),
+            const BannerCarousel(),
+            BlocBuilder<ServiceBloc, ServiceState>(
+              bloc: context.read<ServiceBloc>()..add(FetchServiceDataEvent()),
+              builder: (context, state) {
+                if (state is ServiceLoading) {
                   return SliverFillRemaining(
-                    child: Center(child: Assets.lottie.not.lottie()),
+                    child: Center(
+                      child: Assets.lottie.loading
+                          .lottie(width: 100, height: 100, fit: BoxFit.cover),
+                    ),
                   );
-                }
-                return SliverList.builder(
-                  itemCount: state.serviceData.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final service = state.serviceData[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 5),
-                      child: ServiceCard(service: service),
+                } else if (state is ServiceLoaded) {
+                  if (state.serviceData.isEmpty) {
+                    return SliverFillRemaining(
+                      child: Center(child: Assets.lottie.not.lottie()),
                     );
-                  },
-                );
-              } else if (state is ServiceError) {
-                return SliverFillRemaining(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                        style: AppTextStyle.montserratMedium,
-                      ),
-                      const SizedBox(height: 15),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          fixedSize: const Size(200, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          backgroundColor: AppColor.buttonColor,
+                  }
+                  return SliverList.builder(
+                    itemCount: state.serviceData.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final service = state.serviceData[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 5),
+                        child: ServiceCard(service: service),
+                      );
+                    },
+                  );
+                } else if (state is ServiceError) {
+                  return SliverFillRemaining(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          state.message,
+                          textAlign: TextAlign.center,
+                          style: AppTextStyle.montserratMedium,
                         ),
-                        onPressed: () {
-                          context.read<BannerCubit>().getBanners();
-                          context.read<ServiceBloc>().add(
-                                FetchServiceDataEvent(),
-                              );
-                        },
-                        child: Center(
-                          child: Text(
-                            "Qayta urinish",
-                            style: AppTextStyle.montserratMedium.copyWith(
-                              color: Colors.white,
+                        const SizedBox(height: 15),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: const Size(200, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            backgroundColor: AppColor.buttonColor,
+                          ),
+                          onPressed: () {
+                            context.read<BannerCubit>().getBanners();
+                            context.read<ServiceBloc>().add(
+                                  FetchServiceDataEvent(),
+                                );
+                          },
+                          child: Center(
+                            child: Text(
+                              "Qayta urinish",
+                              style: AppTextStyle.montserratMedium.copyWith(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              } else {
-                return const SliverFillRemaining(
-                  child: Center(child: Text('No data available')),
-                );
-              }
-            },
-          ),
-        ],
+                        )
+                      ],
+                    ),
+                  );
+                } else {
+                  return const SliverFillRemaining(
+                    child: Center(child: Text('No data available')),
+                  );
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

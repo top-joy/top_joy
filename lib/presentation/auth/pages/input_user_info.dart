@@ -1,17 +1,18 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_joy/core/utils/app_color.dart';
 import 'package:top_joy/core/utils/app_text_style.dart';
 import 'package:top_joy/domain/user/entity/user_post.dart';
 import 'package:top_joy/injection.dart';
+import 'package:top_joy/presentation/auth/bloc/verify_code_bloc/verify_bloc.dart';
 import 'package:top_joy/presentation/auth/widgets/text_feild_widget.dart';
 import '../../../core/navigation/app_router.gr.dart';
 import '../../main/bloc/navigation_cubit.dart';
 import '../bloc/user_info_input/user_input_bloc.dart';
+import '../widgets/date_picker_modal.dart';
+import '../widgets/gender_option.dart';
 import '../widgets/toasts_widget.dart';
 
 @RoutePage()
@@ -28,6 +29,8 @@ class _InputUserInfoState extends State<InputUserInfo> {
   final _lastNameController = TextEditingController();
   final _birthdayController = TextEditingController();
   String _gender = '';
+
+  final _formKey = GlobalKey<FormState>();
 
   Future<void> savePhoneNumber() async {
     final perfs = getIt<SharedPreferences>();
@@ -47,26 +50,11 @@ class _InputUserInfoState extends State<InputUserInfo> {
     super.dispose();
   }
 
-  void _showCupertinoDatePicker(BuildContext context) {
+  void _showDatePicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext builder) {
-        return SizedBox(
-          height: 250,
-          child: CupertinoDatePicker(
-            mode: CupertinoDatePickerMode.date,
-            initialDateTime: DateTime.now(),
-            dateOrder: DatePickerDateOrder.dmy,
-            minimumDate: DateTime(1900),
-            maximumDate: DateTime(2101),
-            onDateTimeChanged: (DateTime newDate) {
-              setState(() {
-                _birthdayController.text =
-                    DateFormat('dd-MM-yyyy').format(newDate);
-              });
-            },
-          ),
-        );
+        return DatePickerModal(birthdayController: _birthdayController);
       },
     );
   }
@@ -79,6 +67,12 @@ class _InputUserInfoState extends State<InputUserInfo> {
       backgroundColor: backgroundColor,
       icon: icon,
     );
+  }
+
+  void _onGenderSelected(String selectedGender) {
+    setState(() {
+      _gender = selectedGender;
+    });
   }
 
   @override
@@ -94,134 +88,153 @@ class _InputUserInfoState extends State<InputUserInfo> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: BlocConsumer<UserInputBloc, UserInputState>(
           listener: (context, state) {
             if (state is UserPostSuccess) {
               _register();
               savePhoneNumber();
-
-              _showToast("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
-
+              context.read<VerifyBloc>().add(
+                    CheckUserEvent(
+                        phoneNumber: widget.phoneNumber.substring(1)),
+                  );
               context.router.pushAndPopUntil(
                 const MainRoute(),
                 predicate: (route) => false,
               );
               context.read<NavigationCubit>().pages[2];
+
+              _showToast("Muvaffaqiyatli ro'yxatdan o'tdingiz!");
             } else if (state is UserPostFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                    content:
-                        Text('Failed to submit user info: ${state.error}')),
-              );
+              _showToast("Foydalanuvchi maʼlumotlarini yuborib boʻlmadi!",
+                  backgroundColor: Colors.red);
             }
           },
           builder: (context, state) {
             return SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Tafsilotlaringizni kiriting",
-                    style: AppTextStyle.montserratBold.copyWith(fontSize: 25),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFeildWidget(
-                    controller: _firstNameController,
-                    label: "Ism",
-                    hintText: "Ismingizni kiriting",
-                  ),
-                  const SizedBox(height: 16),
-                  TextFeildWidget(
-                    controller: _lastNameController,
-                    label: "Familiya",
-                    hintText: "Familiya kiriting",
-                  ),
-                  const SizedBox(height: 16),
-                  TextFeildWidget(
-                    controller: _birthdayController,
-                    label: "Tug'ilgan sana",
-                    hintText: "Tug'ilgan sanani tanlang",
-                    onTap: () {
-                      _showCupertinoDatePicker(context);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Jins',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    height: 100,
-                    child: Column(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Tafsilotlaringizni kiriting",
+                      style: AppTextStyle.montserratBold.copyWith(fontSize: 25),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFieldWidget(
+                      controller: _firstNameController,
+                      label: "Ism",
+                      hintText: "Ismingizni kiriting",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Ism kiritilishi kerak";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFieldWidget(
+                      controller: _lastNameController,
+                      label: "Familiya",
+                      hintText: "Familiya kiriting",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Familiya kiritilishi kerak";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFieldWidget(
+                      controller: _birthdayController,
+                      label: "Tug'ilgan sana",
+                      hintText: "Tug'ilgan sanani tanlang",
+                      suffixIcon: const Icon(
+                        Icons.calendar_today_outlined,
+                        color: AppColor.regularTextColor,
+                      ),
+                      onTap: () {
+                        _showDatePicker(context);
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Tug'ilgan sana tanlanishi kerak";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Jins',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    const SizedBox(height: 8),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Expanded(
-                          child: RadioListTile<String>(
-                            title: const Text('Мужчина'),
-                            value: 'Мужчина',
-                            groupValue: _gender,
-                            onChanged: (value) {
-                              setState(() {
-                                _gender = value!;
-                              });
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: RadioListTile<String>(
-                            title: const Text('Женщина'),
-                            value: 'Женщина',
-                            groupValue: _gender,
-                            onChanged: (value) {
-                              setState(() {
-                                _gender = value!;
-                              });
-                            },
-                          ),
-                        ),
+                        GenderOptionWidget(
+                            option: 'Мужчина',
+                            selectedGender: _gender,
+                            onSelected: _onGenderSelected),
+                        GenderOptionWidget(
+                            option: 'Женщина',
+                            selectedGender: _gender,
+                            onSelected: _onGenderSelected),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  if (state is UserPostLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else
-                    Center(
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            context.read<UserInputBloc>().add(
-                                  UserPostEvent(
-                                    UserPost(
-                                      birthday: _birthdayController.text,
-                                      firstName: _firstNameController.text,
-                                      gender: _gender,
-                                      lastName: _lastNameController.text,
-                                      phoneNumber: widget.phoneNumber,
-                                      photo: '',
-                                    ),
-                                  ),
-                                );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                    if (_gender.isEmpty)
+                      const Text(
+                        "Jins tanlanishi kerak",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    const SizedBox(height: 24),
+                    if (state is UserPostLoading)
+                      const Center(child: CircularProgressIndicator())
+                    else
+                      Center(
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate() &&
+                                  _gender.isNotEmpty) {
+                                context.read<UserInputBloc>().add(
+                                      UserPostEvent(
+                                        UserPost(
+                                          birthday: _birthdayController.text,
+                                          firstName: _firstNameController.text,
+                                          gender: _gender,
+                                          lastName: _lastNameController.text,
+                                          phoneNumber: widget.phoneNumber,
+                                          photo: '',
+                                        ),
+                                      ),
+                                    );
+                              } else {
+                                _showToast(
+                                    "Iltimos, barcha ma'lumotlarni kiriting!",
+                                    backgroundColor: Colors.red);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              backgroundColor: Colors.green,
                             ),
-                            backgroundColor: Colors.green,
-                          ),
-                          child: const Text(
-                            'Davom etish',
-                            style: TextStyle(fontSize: 16),
+                            child: Text(
+                              'Davom etish',
+                              style: AppTextStyle.montserratBold
+                                  .copyWith(color: Colors.white, fontSize: 16),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             );
           },

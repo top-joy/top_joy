@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 class DetailAppBarButton extends StatelessWidget {
   final IconData icon;
   final Function() onPressed;
+  final Color color;
   const DetailAppBarButton({
     super.key,
     required this.icon,
     required this.onPressed,
+    this.color = Colors.white,
   });
 
   @override
@@ -16,7 +18,7 @@ class DetailAppBarButton extends StatelessWidget {
       child: IconButton(
         icon: Icon(
           icon,
-          color: Colors.white,
+          color: color,
         ),
         onPressed: onPressed,
       ),

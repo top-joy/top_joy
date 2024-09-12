@@ -7,6 +7,16 @@ class PostUserUsecase {
   PostUserUsecase(this.userRepository);
 
   Future<void> call(UserPost userPost) async {
-    return userRepository.postUser(userPost);
+    return await userRepository.postUser(userPost);
+  }
+}
+
+class PutUserUsecase {
+  UserRepository userRepository;
+
+  PutUserUsecase(this.userRepository);
+
+  Future<void> call(UserPost userPost) async {
+    return await userRepository.putUser(userPost);
   }
 }

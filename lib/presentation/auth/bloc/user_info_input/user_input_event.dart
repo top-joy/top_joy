@@ -13,3 +13,12 @@ class UserPostEvent extends UserInputEvent {
   @override
   List<Object?> get props => [userModel];
 }
+
+class UserPutEvent extends UserInputEvent {
+  final UserPost userModel;
+
+  UserPutEvent(this.userModel);
+
+  @override
+  List<Object?> get props => [userModel];
+}
