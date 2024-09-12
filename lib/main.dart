@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:top_joy/data/favorite/source/favorite_source.dart';
-import 'package:top_joy/domain/auth/usecsae/verify_code_usecase.dart';
 import 'package:top_joy/domain/recomendation/usecase/get_recomendation_usecase.dart';
 import 'package:top_joy/domain/service_data/usecase/get_service_data.dart';
 import 'package:top_joy/domain/user/usecase/post_user_usecase.dart';
@@ -17,7 +16,6 @@ import 'package:top_joy/presentation/home/bloc/banner_bloc/banner_cubit.dart';
 import 'package:top_joy/presentation/home/bloc/service_data_bloc/service_data_bloc.dart';
 import 'package:top_joy/presentation/main/bloc/navigation_cubit.dart';
 import 'package:top_joy/presentation/network/bloc/network_state.dart';
-import 'package:top_joy/presentation/profile/bloc/user_profile_bloc.dart';
 import 'package:top_joy/presentation/recomendation/bloc/recomendation_bloc.dart';
 import 'package:top_joy/presentation/network/bloc/network_bloc.dart';
 import 'package:top_joy/presentation/widgets/no_internet_screen.dart';
@@ -60,10 +58,8 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => NavigationCubit()),
         BlocProvider(create: (context) => InternetBloc()),
         BlocProvider(
-          create: (context) => UserProfileBloc(getIt<VerifyCodeUsecase>()),
-        ),
-        BlocProvider(
-          create: (context) => UserInputBloc(getIt<PostUserUsecase>()),
+          create: (context) =>
+              UserInputBloc(getIt<PostUserUsecase>(), getIt<PutUserUsecase>()),
         ),
         BlocProvider(
           create: (context) => FavoriteBloc(getIt<FavoriteSource>()),

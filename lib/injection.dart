@@ -21,7 +21,7 @@ import 'package:top_joy/data/service_data/source/service_data.dart';
 import 'package:top_joy/data/services/location_service.dart';
 import 'package:top_joy/data/user/models/user_model.dart';
 import 'package:top_joy/data/user/repository/user_repository_impl.dart';
-import 'package:top_joy/data/user/source/user_post_source.dart';
+import 'package:top_joy/data/user/source/user_source.dart';
 import 'package:top_joy/domain/auth/repository/auth_repository.dart';
 import 'package:top_joy/domain/auth/repository/verify_code_repository.dart';
 import 'package:top_joy/domain/auth/usecsae/send_auth_usecase.dart';
@@ -65,6 +65,7 @@ Future<void> setUp() async {
     DioClientRepositoryImpl(getIt<DioClient>()),
   );
 
+  // Favorite
   getIt.registerSingleton<FavoriteSource>(
     FavoriteSourceImpl(getIt<DioClientRepository>()),
   );
@@ -132,6 +133,9 @@ Future<void> setUp() async {
   ));
   getIt.registerSingleton<UserRepository>(
       UserRepositoryImpl(getIt<UserPostSource>()));
+  getIt.registerSingleton<PutUserUsecase>(
+    PutUserUsecase(getIt<UserRepository>())
+  );
   getIt.registerSingleton<PostUserUsecase>(
       PostUserUsecase(getIt<UserRepository>()));
 }

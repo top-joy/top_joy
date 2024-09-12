@@ -78,6 +78,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/notification.svg
   SvgGenImage get notification => const SvgGenImage('assets/images/notification.svg');
 
+  /// File path: assets/images/person.png
+  AssetGenImage get person => const AssetGenImage('assets/images/person.png');
+
   /// File path: assets/images/profile.svg
   SvgGenImage get profile => const SvgGenImage('assets/images/profile.svg');
 
@@ -109,6 +112,7 @@ class $AssetsImagesGen {
         mavsum,
         navigator,
         notification,
+        person,
         profile,
         profileBlue,
         save,
